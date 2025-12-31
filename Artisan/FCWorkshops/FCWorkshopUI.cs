@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
+using FuzzySharp;
 
 namespace Artisan.FCWorkshops
 {
@@ -51,7 +52,7 @@ namespace Artisan.FCWorkshops
                         SelectedProject = 0;
                     }
 
-                    foreach (var project in LuminaSheets.WorkshopSequenceSheet.Values.Where(x => x.RowId > 0).Where(x => x.ResultItem.Value.Name.ToString().Contains(Search, StringComparison.CurrentCultureIgnoreCase)))
+                    foreach (var project in LuminaSheets.WorkshopSequenceSheet.Values.Where(x => x.RowId > 0).Where(x => string.IsNullOrEmpty(Search) || Fuzz.PartialRatio(Search.ToLower(), x.ResultItem.Value.Name.ToString().ToLower()) > 60))
                     {
                         bool selected = ImGui.Selectable($"{project.ResultItem.Value.Name.ToString()}", project.RowId == SelectedProject);
 

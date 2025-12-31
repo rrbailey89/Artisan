@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using FuzzySharp;
 using static FFXIVClientStructs.FFXIV.Client.UI.Misc.RaptureGearsetModule;
 using Condition = Artisan.CraftingLogic.CraftData.Condition;
 
@@ -1100,7 +1101,7 @@ namespace Artisan.UI
                     }
 
 
-                    foreach (var recipe in LuminaSheets.RecipeSheet.Values.Where(x => x.ItemResult.Value.Name.ToDalamudString().ToString().Contains(Search, StringComparison.CurrentCultureIgnoreCase)))
+                    foreach (var recipe in LuminaSheets.RecipeSheet.Values.Where(x => string.IsNullOrEmpty(Search) || Fuzz.PartialRatio(Search.ToLower(), x.ItemResult.Value.Name.ToDalamudString().ToString().ToLower()) > 60))
                     {
                         ImGui.PushID($"###simRecipe{recipe.RowId}");
                         var selected = ImGui.Selectable($"{recipe.ItemResult.Value.Name.ToDalamudString().ToString()} ({LuminaSheets.ClassJobSheet[recipe.CraftType.RowId + 8].Abbreviation.ToString()} {recipe.RecipeLevelTable.Value.ClassJobLevel})", recipe.RowId == SelectedRecipe?.RowId);
