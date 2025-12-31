@@ -34,6 +34,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using FuzzySharp;
 
 internal class ListEditor : Window, IDisposable
 {
@@ -676,7 +677,7 @@ internal class ListEditor : Window, IDisposable
 
         if (P.Config.ShowOnlyCraftable && RetainerInfo.CacheBuilt)
         {
-            foreach (var recipe in CraftingListUI.CraftableItems.Where(x => x.Value).Select(x => x.Key).Where(x => Regex.Match(x.ItemResult.Value.Name.GetText(true), Search, RegexOptions.CultureInvariant | RegexOptions.IgnoreCase).Success))
+            foreach (var recipe in CraftingListUI.CraftableItems.Where(x => x.Value).Select(x => x.Key).Where(x => string.IsNullOrEmpty(Search) || Fuzz.PartialRatio(Search.ToLower(), x.ItemResult.Value.Name.GetText(true).ToLower()) > 60))
             {
                 if (recipe.Number == 0) continue;
                 ImGui.PushID((int)recipe.RowId);
@@ -704,7 +705,7 @@ internal class ListEditor : Window, IDisposable
                 {
                     if (recipe.ItemResult.RowId == 0) continue;
                     if (recipe.Number == 0) continue;
-                    if (!string.IsNullOrEmpty(Search) && !Regex.Match(recipe.ItemResult.Value.Name.GetText(true), Search, RegexOptions.CultureInvariant | RegexOptions.IgnoreCase).Success) continue;
+                    if (!string.IsNullOrEmpty(Search) && Fuzz.PartialRatio(Search.ToLower(), recipe.ItemResult.Value.Name.GetText(true).ToLower()) <= 60) continue;
                     if (!RecipeLabels.ContainsKey(recipe.RowId))
                     {
                         RecipeLabels[recipe.RowId] = $"{recipe.ItemResult.Value.Name.ToDalamudString()} ({LuminaSheets.ClassJobSheet[recipe.CraftType.RowId + 8].Abbreviation} {recipe.RecipeLevelTable.Value.ClassJobLevel})";
