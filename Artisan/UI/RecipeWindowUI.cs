@@ -20,6 +20,7 @@ using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
+using FuzzySharp;
 using static ECommons.GenericHelpers;
 
 namespace Artisan
@@ -228,7 +229,7 @@ namespace Artisan
 
                     if (Search.Length > 0 && !searched)
                     {
-                        if (LuminaSheets.RecipeSheet.Values.Count(x => Regex.Match(x.ItemResult.Value.Name.ToDalamudString().ToString(), Search, RegexOptions.IgnoreCase).Success) > 0)
+                        if (LuminaSheets.RecipeSheet.Values.Count(x => Fuzz.PartialRatio(Search.ToLower(), x.ItemResult.Value.Name.ToDalamudString().ToString().ToLower()) > 60) > 0)
                         {
                             ImGui.Begin($"###Search{searchNode->NodeId}", ImGuiWindowFlags.NoScrollbar
                                 | ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoNavFocus
@@ -238,7 +239,7 @@ namespace Artisan
                             ImGui.SetNextItemWidth(size.Length() - 12f);
 
                             int results = 0;
-                            foreach (var recipe in LuminaSheets.RecipeSheet.Values.Where(x => Regex.Match(x.ItemResult.Value.Name.ToDalamudString().ToString(), Search, RegexOptions.IgnoreCase).Success))
+                            foreach (var recipe in LuminaSheets.RecipeSheet.Values.Where(x => Fuzz.PartialRatio(Search.ToLower(), x.ItemResult.Value.Name.ToDalamudString().ToString().ToLower()) > 60))
                             {
                                 if (results >= 24) continue;
                                 var selected = ImGui.Selectable($"{recipe.ItemResult.Value.Name.ToDalamudString()} ({(Job)recipe.CraftType.RowId + 8})###{recipe.RowId}");
